@@ -136,7 +136,7 @@ python3 -m venv .venv
 Sau đó chạy:
 
 ```bash
-python -m py_compile src/app/*.py src/provider/*.py src/rag/*.py
+python -m compileall src
 ```
 
 Mục tiêu là kiểm tra code scaffold hiện tại chưa có lỗi syntax trước khi bạn sửa.

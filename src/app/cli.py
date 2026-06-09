@@ -5,6 +5,10 @@ import argparse
 from app.graph import ShoppingAssistant
 
 
+from pathlib import Path
+import json
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Student scaffold CLI.")
     parser.add_argument("--question", help="Run one question through the graph.")
@@ -18,12 +22,25 @@ def main() -> None:
     args = build_parser().parse_args()
     assistant = ShoppingAssistant()
 
-    # TODO:
-    # - nếu `--batch` thì đọc `data/test.json` và chạy batch
-    # - nếu có `--question` thì chạy một câu
-    # - lưu trace nếu user truyền `--trace-file`
-    # - in final answer hoặc summary ra terminal
-    raise NotImplementedError("Student TODO: finish the CLI entry point")
+    if args.batch:
+        test_file_path = Path(args.test_file)
+        output_dir = assistant.settings.traces_dir
+        print(f"Running batch tests from {test_file_path}...")
+        summary = assistant.run_batch(test_file=test_file_path, output_dir=output_dir)
+        print(f"Batch tests completed. Results saved in: {output_dir / 'summary.json'}")
+        print(f"Route Accuracy: {summary['metrics']['route_accuracy']:.2%}")
+        print(f"Status Accuracy: {summary['metrics']['status_accuracy']:.2%}")
+    elif args.question:
+        trace_path = Path(args.trace_file) if args.trace_file else None
+        print(f"Asking: '{args.question}'...")
+        result = assistant.ask(question=args.question, trace_file=trace_path)
+        print("\n=== FINAL ANSWER ===")
+        print(result.get("final_answer"))
+        print("====================\n")
+        if trace_path:
+            print(f"Trace saved to: {trace_path}")
+    else:
+        print("Please provide --question <question> or --batch. Use --help for usage.")
 
 
 if __name__ == "__main__":
